@@ -1,8 +1,8 @@
 <template>
   <div :class="compact ? 'status-uptime-strip' : 'monitor-row3 mt-4'">
-    <div class="flex gap-[1.5px] items-end">
+    <div class="uptime-cells">
       <div v-for="(day, i) in displayDays" :key="i"
-        class="uptime-bar-cell flex-1 rounded-[2px]"
+        class="uptime-bar-cell rounded-[2px]"
         :style="{ height: compact ? '14px' : '18px' }"
         :class="dayColorClass(day)">
         <div class="uptime-tooltip">

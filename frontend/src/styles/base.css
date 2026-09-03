@@ -187,11 +187,11 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
 .status-board-heading h3 { color: #334155; font-size: 1rem; font-weight: 800; letter-spacing: 0.04em; }
 .status-board-heading > span { color: #94a3b8; font: 500 0.68rem 'JetBrains Mono', monospace; }
 .status-board-heading-mark { width: 0.3rem; height: 1.2rem; border-radius: 99px; background: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.1); }
-.status-board-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #e8edf1; border-radius: 1rem; overflow: hidden; background: rgba(255,255,255,0.88); box-shadow: 0 12px 26px rgba(15,23,42,0.055); }
-.status-board-row { display: grid; grid-template-columns: minmax(130px, 0.82fr) minmax(190px, 1.18fr); gap: 1rem; align-items: center; min-height: 5.8rem; padding: 1.15rem 1.35rem; border-bottom: 1px solid #edf1f3; animation: fade-up 0.42s ease-out both; }
+.status-board-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #e8edf1; border-radius: 1rem; overflow: visible; background: rgba(255,255,255,0.88); box-shadow: 0 12px 26px rgba(15,23,42,0.055); }
+.status-board-row { position: relative; display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr); gap: 1rem; align-items: center; min-height: 5.8rem; padding: 1.15rem 1.35rem; border-bottom: 1px solid #edf1f3; animation: fade-up 0.42s ease-out both; }
 .status-board-row:nth-child(odd) { border-right: 1px solid #edf1f3; }
 .status-board-row:nth-last-child(-n+2) { border-bottom: 0; }
-.status-board-row:hover { background: #fbfefc; }
+.status-board-row:hover { z-index: 10; background: #fbfefc; }
 .status-board-service { min-width: 0; display: grid; gap: 0.34rem; }
 .status-board-name-line { display: flex; align-items: center; gap: 0.48rem; min-width: 0; }
 .status-board-name-line h4 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1e293b; font-size: 0.84rem; font-weight: 800; }
@@ -206,9 +206,10 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
 .status-board-url:hover { color: #059669; text-decoration: underline; text-underline-offset: 3px; }
 .status-board-cert { justify-self: start; display: inline-flex; align-items: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0.15rem 0.5rem; border-radius: 99px; font: 700 0.6rem 'JetBrains Mono', monospace; }
 .status-board-cert.text-emerald-500 { color: #047857; background: #d1fae5; }.status-board-cert.text-yellow-500 { color: #a16207; background: #fef3c7; }.status-board-cert.text-red-500 { color: #b91c1c; background: #fee2e2; }
-.status-board-uptime { min-width: 0; }.status-board-no-history { color: #94a3b8; font: 0.66rem 'JetBrains Mono', monospace; text-align: right; }
-.status-uptime-strip { min-width: 0; }
-.status-uptime-strip .uptime-bar-cell { border: 1px solid #edf1f3; }
+.status-board-uptime { width: 100%; min-width: 0; max-width: 100%; overflow: visible; }.status-board-no-history { color: #94a3b8; font: 0.66rem 'JetBrains Mono', monospace; text-align: right; }
+.status-uptime-strip { width: 100%; min-width: 0; max-width: 100%; overflow: visible; }
+.status-uptime-strip > div:first-child { width: 100%; min-width: 0; max-width: 100%; overflow: visible; }
+.status-uptime-strip .uptime-bar-cell { min-width: 0 !important; border: 1px solid #edf1f3; }
 .status-uptime-strip .uptime-status-empty { background: #ffffff; }
 .status-uptime-strip .uptime-status-up { background: #16a34a; border-color: #16a34a; }
 .status-uptime-strip .uptime-status-degraded { background: #eab308; border-color: #eab308; }

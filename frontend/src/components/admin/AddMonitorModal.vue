@@ -65,6 +65,11 @@
                 <label class="block text-sm font-medium text-slate-300 mb-2">标签 <span class="text-xs font-normal text-slate-500">可选，逗号分隔</span></label>
                 <input v-model="newMonitor.tags" placeholder="prod,web,api" class="input-field w-full border border-slate-700 rounded-xl px-4 py-3 text-sm bg-slate-800/80 text-white outline-none placeholder-slate-600">
               </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">展示分组 <span class="text-xs font-normal text-slate-500">可选</span></label>
+                <input v-model="newMonitor.group_name" list="monitor-groups" placeholder="例如: 核心服务" class="input-field w-full border border-slate-700 rounded-xl px-4 py-3 text-sm bg-slate-800/80 text-white outline-none placeholder-slate-600">
+                <datalist id="monitor-groups"><option v-for="group in groupNames" :key="group" :value="group" /></datalist>
+              </div>
             </div>
             <div class="mt-4">
               <label class="block text-sm font-medium text-slate-300 mb-2">自定义请求头 <span class="text-xs font-normal text-slate-500">JSON 格式，可选</span></label>
@@ -124,6 +129,6 @@
 </template>
 
 <script setup>
-defineProps({ newMonitor: Object, submitting: Boolean });
+defineProps({ newMonitor: Object, submitting: Boolean, groupNames: { type: Array, default: () => [] } });
 defineEmits(['close', 'submit']);
 </script>

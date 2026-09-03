@@ -109,10 +109,10 @@
     </footer>
 
     <!-- 所有 Modal -->
-    <AddMonitorModal v-if="showAddModal" :newMonitor="newMonitor" :submitting="submitting"
+    <AddMonitorModal v-if="showAddModal" :newMonitor="newMonitor" :submitting="submitting" :groupNames="groupNames"
       @close="showAddModal = false" @submit="addMonitor" />
 
-    <ConfigModal v-if="showConfig" :configTarget="configTarget" :configForm="configForm" :configSaving="configSaving"
+    <ConfigModal v-if="showConfig" :configTarget="configTarget" :configForm="configForm" :configSaving="configSaving" :groupNames="groupNames"
       @close="showConfig = false" @save="saveConfig" />
 
     <LogsModal v-if="showLogs" :monitor="currentMonitor" :logs="logs" :logsLoading="logsLoading"
@@ -184,7 +184,7 @@ const confirmModal = ref({ show: false, message: '', resolve: null });
 
 const newMonitor = ref({
     name: '', url: '', method: 'GET', interval: 300,
-    keyword: '', user_agent: '', tags: '',
+    keyword: '', user_agent: '', tags: '', group_name: '',
     request_headers: '', request_body: '',
     expected_codes: '200-299', channel_ids: '',
     check_ssl: true, check_domain: true, alert_error_rate: 0
@@ -247,6 +247,10 @@ const allTags = computed(() => {
     return [...set];
 });
 
+const groupNames = computed(() => [...new Set(monitors.value
+    .map(m => (m.group_name || '').trim())
+    .filter(Boolean))]);
+
 const filteredMonitors = computed(() => {
     let list = monitors.value;
     if (activeTag.value !== 'all') {
@@ -272,7 +276,7 @@ const addMonitor = async () => {
         if (r.ok) {
             addToast('添加监控成功', 'success');
             showAddModal.value = false;
-            newMonitor.value = { name: '', url: '', method: 'GET', interval: 300, keyword: '', user_agent: '', tags: '', request_headers: '', request_body: '', expected_codes: '200-299', channel_ids: '', check_ssl: true, check_domain: true, alert_error_rate: 0 };
+            newMonitor.value = { name: '', url: '', method: 'GET', interval: 300, keyword: '', user_agent: '', tags: '', group_name: '', request_headers: '', request_body: '', expected_codes: '200-299', channel_ids: '', check_ssl: true, check_domain: true, alert_error_rate: 0 };
             fetchMonitors();
         } else {
             const d = await r.json(); addToast(d.error || '添加失败', 'error');
@@ -299,7 +303,7 @@ const openConfig = (m) => {
     configTarget.value = m;
     configForm.value = {
         name: m.name, url: m.url, method: m.method || 'GET', interval: m.interval || 300,
-        keyword: m.keyword || '', user_agent: m.user_agent || '', tags: m.tags || '',
+        keyword: m.keyword || '', user_agent: m.user_agent || '', tags: m.tags || '', group_name: m.group_name || '',
         request_headers: m.request_headers || '', request_body: m.request_body || '',
         expected_codes: m.expected_codes || '200-299', channel_ids: m.channel_ids || '',
         check_ssl: (m.check_ssl ?? 1) === 1, check_domain: (m.check_domain ?? 1) === 1,
@@ -352,7 +356,7 @@ const latencyPercentiles = computed(() => {
 const cloneMonitor = (m) => {
     newMonitor.value = {
         name: m.name + ' (副本)', url: m.url, method: m.method || 'GET', interval: m.interval || 300,
-        keyword: m.keyword || '', user_agent: m.user_agent || '', tags: m.tags || '',
+        keyword: m.keyword || '', user_agent: m.user_agent || '', tags: m.tags || '', group_name: m.group_name || '',
         request_headers: m.request_headers || '', request_body: m.request_body || '',
         expected_codes: m.expected_codes || '200-299', channel_ids: m.channel_ids || '',
         check_ssl: (m.check_ssl ?? 1) === 1, check_domain: (m.check_domain ?? 1) === 1,
@@ -395,7 +399,7 @@ const handleReorder = async (ids) => {
 };
 
 const exportMonitors = () => {
-    const data = monitors.value.map(m => ({ name: m.name, url: m.url, method: m.method, interval: m.interval, keyword: m.keyword, user_agent: m.user_agent, tags: m.tags, request_headers: m.request_headers, request_body: m.request_body, expected_codes: m.expected_codes, channel_ids: m.channel_ids }));
+    const data = monitors.value.map(m => ({ name: m.name, url: m.url, method: m.method, interval: m.interval, keyword: m.keyword, user_agent: m.user_agent, tags: m.tags, group_name: m.group_name, request_headers: m.request_headers, request_body: m.request_body, expected_codes: m.expected_codes, channel_ids: m.channel_ids }));
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.style.display = 'none'; a.href = URL.createObjectURL(blob); a.download = `uptime-monitors-${new Date().toISOString().slice(0,10)}.json`;
     document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 200);

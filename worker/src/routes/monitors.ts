@@ -13,6 +13,9 @@ async function ensureMonitorsSchema(db: D1Database) {
   try {
     await db.prepare("ALTER TABLE monitors ADD COLUMN channel_ids TEXT").run();
   } catch {}
+  try {
+    await db.prepare("ALTER TABLE monitors ADD COLUMN group_name TEXT DEFAULT ''").run();
+  } catch {}
   schemaChecked = true;
 }
 
@@ -30,8 +33,9 @@ monitors.get('/', async (c) => {
 // 2. 公开列表 API（无需鉴权）
 monitors.get('/public', async (c) => {
   try {
+    await ensureMonitorsSchema(c.env.DB);
     const { results } = await c.env.DB.prepare(
-      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags FROM monitors ORDER BY sort_order ASC, created_at ASC'
+      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags, group_name FROM monitors ORDER BY sort_order ASC, created_at ASC'
     ).all<Pick<Monitor, 'id' | 'name' | 'url' | 'status' | 'last_check' | 'cert_expiry' | 'domain_expiry' | 'paused' | 'tags'>>();
     
     c.header('Cache-Control', 'public, max-age=30, s-maxage=30');
@@ -44,8 +48,9 @@ monitors.get('/public', async (c) => {
 // 3. 公开详情 API：含延迟、可用率、90天历史（无需鉴权）
 monitors.get('/public/details', async (c) => {
   try {
+    await ensureMonitorsSchema(c.env.DB);
     const { results: monitorsList } = await c.env.DB.prepare(
-      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags FROM monitors ORDER BY sort_order ASC, created_at ASC'
+      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags, group_name FROM monitors ORDER BY sort_order ASC, created_at ASC'
     ).all();
     if (!monitorsList || monitorsList.length === 0) return c.json({ monitors: [] });
 
@@ -177,7 +182,7 @@ monitors.post('/', async (c) => {
   try {
     await ensureMonitorsSchema(c.env.DB);
     const body = await c.req.json<Partial<Monitor>>();
-    const { name, url, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids } = body;
+    const { name, url, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids, group_name } = body;
 
     if (!name || !url) {
       return c.json({ error: 'Missing name or url' }, 400);
@@ -186,8 +191,8 @@ monitors.post('/', async (c) => {
     const method = (body.method || 'GET').toUpperCase();
 
     const result = await c.env.DB.prepare(
-      `INSERT INTO monitors (name, url, method, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO monitors (name, url, method, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids, group_name)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       name, url, method,
       interval || 300,
@@ -197,7 +202,8 @@ monitors.post('/', async (c) => {
       request_headers || null,
       request_body || null,
       expected_codes || '200-299',
-      channel_ids || null
+      channel_ids || null,
+      typeof group_name === 'string' && group_name.trim() ? group_name.trim() : null
     ).run();
 
     const newId = result.meta.last_row_id as number;
@@ -246,7 +252,7 @@ monitors.patch('/:id/config', async (c) => {
       ['name', 'name'], ['url', 'url'], ['keyword', 'keyword'],
       ['user_agent', 'user_agent'], ['tags', 'tags'],
       ['request_headers', 'request_headers'], ['request_body', 'request_body'],
-      ['expected_codes', 'expected_codes'], ['channel_ids', 'channel_ids'],
+      ['expected_codes', 'expected_codes'], ['channel_ids', 'channel_ids'], ['group_name', 'group_name'],
     ];
     for (const [key, col] of strFields) {
       if (body[key] !== undefined) {

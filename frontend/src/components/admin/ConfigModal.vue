@@ -38,6 +38,7 @@
                 <div><label class="block text-xs font-medium text-slate-400 mb-1">标签</label><input v-model="configForm.tags" placeholder="prod,web,api" class="w-full border border-slate-700 rounded-lg px-3 py-2 text-sm bg-slate-800/80 text-white focus:border-green-500 outline-none placeholder-slate-600"></div>
                 <div><label class="block text-xs font-medium text-slate-400 mb-1">专属渠道 ID <span class="text-slate-500">逗号分隔，空为全部</span></label><input v-model="configForm.channel_ids" placeholder="例如: 1,3" class="w-full border border-slate-700 rounded-lg px-3 py-2 text-sm bg-slate-800/80 text-white focus:border-green-500 outline-none font-mono placeholder-slate-600 text-xs"></div>
               </div>
+              <div><label class="block text-xs font-medium text-slate-400 mb-1">展示分组 <span class="text-slate-500">留空归入未分组</span></label><input v-model="configForm.group_name" list="config-monitor-groups" placeholder="例如: 核心服务" class="w-full border border-slate-700 rounded-lg px-3 py-2 text-sm bg-slate-800/80 text-white focus:border-green-500 outline-none placeholder-slate-600"><datalist id="config-monitor-groups"><option v-for="group in groupNames" :key="group" :value="group" /></datalist></div>
               <div><label class="block text-xs font-medium text-slate-400 mb-1">自定义请求头</label><input v-model="configForm.request_headers" placeholder='{"Authorization":"Bearer xxx"}' class="w-full border border-slate-700 rounded-lg px-3 py-2 text-sm bg-slate-800/80 text-white outline-none font-mono placeholder-slate-600 text-xs"></div>
               <div v-if="['POST','PUT','PATCH'].includes(configForm.method)"><label class="block text-xs font-medium text-slate-400 mb-1">请求体</label><textarea v-model="configForm.request_body" placeholder='{"key":"value"}' rows="2" class="w-full border border-slate-700 rounded-lg px-3 py-2 text-sm bg-slate-800/80 text-white outline-none font-mono placeholder-slate-600 resize-none text-xs"></textarea></div>
             </div>
@@ -101,7 +102,7 @@
 </template>
 
 <script setup>
-defineProps({ configTarget: Object, configForm: Object, configSaving: Boolean });
+defineProps({ configTarget: Object, configForm: Object, configSaving: Boolean, groupNames: { type: Array, default: () => [] } });
 defineEmits(['close', 'save']);
 
 const silenceOptions = [{ value: 1, label: '1h' }, { value: 4, label: '4h' }, { value: 12, label: '12h' }, { value: 24, label: '24h' }, { value: 72, label: '72h' }];

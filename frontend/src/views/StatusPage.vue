@@ -114,9 +114,9 @@ const avgLatency = computed(() => {
 const monitorSections = computed(() => {
     const groups = new Map();
     for (const monitor of monitors.value) {
-        const tag = (monitor.tags || '').split(',').map(t => t.trim()).filter(Boolean)[0] || '未分组';
-        if (!groups.has(tag)) groups.set(tag, []);
-        groups.get(tag).push(monitor);
+        const groupName = (monitor.group_name || '').trim() || '未分组';
+        if (!groups.has(groupName)) groups.set(groupName, []);
+        groups.get(groupName).push(monitor);
     }
     return [...groups.entries()].map(([name, items]) => ({ name, items }));
 });

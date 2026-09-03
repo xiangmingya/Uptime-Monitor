@@ -30,6 +30,7 @@ export interface Monitor {
   expected_codes: string | null;   // 期望 HTTP 状态码模式，如 "200-299" 或 "200,301,302"
   channel_ids: string | null;      // 专属通知渠道 ID，如 "1,3"
   group_name: string | null;       // 公开状态页展示分组
+  show_url: number;                // 是否在公开状态页展示 URL
   sort_order: number;             // 拖拽排序顺序
   created_at: string;
 }
@@ -88,5 +89,5 @@ export const MONITOR_COLUMNS = `
   retry_count, last_check, keyword, user_agent, tags, domain_expiry, cert_expiry,
   check_info_status, paused, check_ssl, check_domain, alert_silence_uptime,
   alert_silence_ssl, alert_silence_domain, alert_error_rate, last_alert_uptime,
-  last_alert_ssl, last_alert_domain, expected_codes, channel_ids, group_name, sort_order, created_at
+  last_alert_ssl, last_alert_domain, expected_codes, channel_ids, group_name, show_url, sort_order, created_at
 `;

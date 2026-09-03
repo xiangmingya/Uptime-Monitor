@@ -51,6 +51,11 @@
               <label class="flex items-center justify-between p-3 rounded-lg bg-slate-900/50 cursor-pointer"><div class="flex items-center gap-2 text-sm text-slate-300"><i class="fas fa-globe text-green-400 w-4"></i><span>域名到期检测</span></div><input type="checkbox" v-model="configForm.check_domain" class="w-4 h-4 rounded accent-green-500"></label>
             </div>
           </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">前台展示</h4>
+            <label class="flex items-center justify-between p-3 rounded-lg bg-slate-900/50 cursor-pointer"><div class="flex items-center gap-2 text-sm text-slate-300"><i class="fas fa-link text-green-400 w-4"></i><span>显示网站地址</span></div><input type="checkbox" v-model="configForm.show_url" class="w-4 h-4 rounded accent-green-500"></label>
+            <p class="text-xs text-slate-500 mt-2">关闭后公开状态页保留站点名称和状态，不显示 URL。</p>
+          </div>
           <!-- 监测频率 -->
           <div>
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">监测频率</h4>

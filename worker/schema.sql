@@ -70,6 +70,7 @@ CREATE TABLE monitors (
   expected_codes TEXT DEFAULT '200-299',   -- 期望 HTTP 状态码模式 (如 "200-299" 或 "200,301,302")
   channel_ids TEXT,                         -- 专属通知渠道 ID (逗号分隔，NULL/空代表广播所有开启渠道)
   group_name TEXT DEFAULT '',               -- 公开状态页展示分组
+  show_url INTEGER DEFAULT 1,               -- 是否在公开状态页展示 URL
   sort_order INTEGER DEFAULT 0,             -- 拖拽排序顺序
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -178,6 +179,7 @@ INSERT INTO settings (key, value) VALUES ('alert_template_error_rate', '错误�
 -- ============================================================
 -- ALTER TABLE monitors ADD COLUMN sort_order INTEGER DEFAULT 0;
 -- ALTER TABLE monitors ADD COLUMN group_name TEXT DEFAULT '';
+-- ALTER TABLE monitors ADD COLUMN show_url INTEGER DEFAULT 1;
 -- ALTER TABLE incidents ADD COLUMN type TEXT DEFAULT 'incident';
 -- ALTER TABLE incidents ADD COLUMN scheduled_start DATETIME;
 -- ALTER TABLE incidents ADD COLUMN scheduled_end DATETIME;

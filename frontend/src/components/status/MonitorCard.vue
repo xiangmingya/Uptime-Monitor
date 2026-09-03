@@ -25,7 +25,7 @@
         </div>
 
         <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 pl-5">
-          <a :href="monitor.url" target="_blank" rel="noopener" class="text-[11px] sm:text-[13px] font-mono text-slate-500 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors truncate max-w-full sm:max-w-[420px] cursor-pointer flex items-center gap-1.5 group/link">
+          <a v-if="monitor.show_url !== 0" :href="monitor.url" target="_blank" rel="noopener" class="text-[11px] sm:text-[13px] font-mono text-slate-500 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors truncate max-w-full sm:max-w-[420px] cursor-pointer flex items-center gap-1.5 group/link">
             {{ monitor.url }}
             <svg class="w-2.5 h-2.5 opacity-70 group-hover/link:opacity-100 transition-opacity duration-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
           </a>

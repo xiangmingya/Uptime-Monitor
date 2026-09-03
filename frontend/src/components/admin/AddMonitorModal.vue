@@ -110,6 +110,16 @@
               </label>
             </div>
           </div>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2"><i class="fas fa-eye text-slate-400"></i> 前台展示</h4>
+            <label class="flex items-center gap-3 p-4 rounded-xl border border-slate-700 hover:border-green-500/50 cursor-pointer select-none transition-colors bg-slate-900/50">
+              <input type="checkbox" v-model="newMonitor.show_url" class="w-5 h-5 rounded accent-green-500">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-green-500/15 rounded-lg flex items-center justify-center"><i class="fas fa-link text-green-400 text-xs"></i></div>
+                <div><span class="text-sm font-medium text-slate-300">显示网站地址</span><p class="text-xs text-slate-500">关闭后前台仍展示名称和状态，但不会显示 URL</p></div>
+              </div>
+            </label>
+          </div>
         </div>
         <!-- 底部 -->
         <div class="px-8 py-5 border-t border-white/5 bg-slate-900/30 flex items-center justify-between">

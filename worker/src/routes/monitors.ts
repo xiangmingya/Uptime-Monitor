@@ -16,6 +16,9 @@ async function ensureMonitorsSchema(db: D1Database) {
   try {
     await db.prepare("ALTER TABLE monitors ADD COLUMN group_name TEXT DEFAULT ''").run();
   } catch {}
+  try {
+    await db.prepare("ALTER TABLE monitors ADD COLUMN show_url INTEGER DEFAULT 1").run();
+  } catch {}
   schemaChecked = true;
 }
 
@@ -35,7 +38,7 @@ monitors.get('/public', async (c) => {
   try {
     await ensureMonitorsSchema(c.env.DB);
     const { results } = await c.env.DB.prepare(
-      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags, group_name FROM monitors ORDER BY sort_order ASC, created_at ASC'
+      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags, group_name, show_url FROM monitors ORDER BY sort_order ASC, created_at ASC'
     ).all<Pick<Monitor, 'id' | 'name' | 'url' | 'status' | 'last_check' | 'cert_expiry' | 'domain_expiry' | 'paused' | 'tags'>>();
     
     c.header('Cache-Control', 'public, max-age=30, s-maxage=30');
@@ -50,7 +53,7 @@ monitors.get('/public/details', async (c) => {
   try {
     await ensureMonitorsSchema(c.env.DB);
     const { results: monitorsList } = await c.env.DB.prepare(
-      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags, group_name FROM monitors ORDER BY sort_order ASC, created_at ASC'
+      'SELECT id, name, url, status, last_check, cert_expiry, domain_expiry, paused, tags, group_name, show_url FROM monitors ORDER BY sort_order ASC, created_at ASC'
     ).all();
     if (!monitorsList || monitorsList.length === 0) return c.json({ monitors: [] });
 
@@ -182,7 +185,7 @@ monitors.post('/', async (c) => {
   try {
     await ensureMonitorsSchema(c.env.DB);
     const body = await c.req.json<Partial<Monitor>>();
-    const { name, url, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids, group_name } = body;
+    const { name, url, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids, group_name, show_url } = body;
 
     if (!name || !url) {
       return c.json({ error: 'Missing name or url' }, 400);
@@ -191,8 +194,8 @@ monitors.post('/', async (c) => {
     const method = (body.method || 'GET').toUpperCase();
 
     const result = await c.env.DB.prepare(
-      `INSERT INTO monitors (name, url, method, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids, group_name)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO monitors (name, url, method, interval, keyword, user_agent, tags, request_headers, request_body, expected_codes, channel_ids, group_name, show_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       name, url, method,
       interval || 300,
@@ -203,7 +206,8 @@ monitors.post('/', async (c) => {
       request_body || null,
       expected_codes || '200-299',
       channel_ids || null,
-      typeof group_name === 'string' && group_name.trim() ? group_name.trim() : null
+      typeof group_name === 'string' && group_name.trim() ? group_name.trim() : null,
+      Number(show_url) === 0 ? 0 : 1
     ).run();
 
     const newId = result.meta.last_row_id as number;
@@ -274,7 +278,7 @@ monitors.patch('/:id/config', async (c) => {
       fields.push('method = ?'); values.push(String(body.method).toUpperCase());
     }
 
-    const flagFields = ['check_ssl', 'check_domain'];
+    const flagFields = ['check_ssl', 'check_domain', 'show_url'];
     for (const k of flagFields) {
       if (body[k] !== undefined) { fields.push(`${k} = ?`); values.push(body[k] ? 1 : 0); }
     }

@@ -12,7 +12,7 @@
       <span v-if="monitor.cert_expiry" class="status-board-cert" :class="getExpiryClass(monitor.cert_expiry)">证书有效：{{ formatExpiry(monitor.cert_expiry) }}</span>
     </div>
     <div class="status-board-uptime">
-      <UptimeBar v-if="monitor.daily_stats && monitor.daily_stats.length > 0 && !monitor.paused" :monitor="monitor" compact />
+      <UptimeBar v-if="!monitor.paused" :monitor="monitor" compact />
       <div v-else class="status-board-no-history">{{ formatDate(monitor.last_check) }}</div>
     </div>
   </article>

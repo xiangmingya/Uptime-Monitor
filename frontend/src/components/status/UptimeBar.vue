@@ -49,10 +49,10 @@ const displayDays = computed(() => {
 });
 
 const dayColorClass = (day) => {
-    if (day.total === 0) return 'bg-slate-200/80 dark:bg-slate-800/60';
+    if (day.total === 0) return props.compact ? 'uptime-status-empty' : 'bg-slate-200/80 dark:bg-slate-800/60';
     const pct = (day.up / day.total) * 100;
-    if (pct >= 99.9) return 'bg-emerald-400 dark:bg-emerald-500';
-    if (pct >= 95)   return 'bg-yellow-400 dark:bg-yellow-500';
-    return 'bg-red-400 dark:bg-red-500';
+    if (pct >= 99.9) return props.compact ? 'uptime-status-up' : 'bg-emerald-400 dark:bg-emerald-500';
+    if (pct >= 95)   return props.compact ? 'uptime-status-degraded' : 'bg-yellow-400 dark:bg-yellow-500';
+    return props.compact ? 'uptime-status-down' : 'bg-red-400 dark:bg-red-500';
 };
 </script>

@@ -53,6 +53,10 @@
             <h2 class="text-sm font-bold text-slate-600 dark:text-slate-400">服务状态</h2>
           </div>
           <div class="flex items-center gap-3 text-[11px] font-mono text-slate-500 dark:text-slate-600">
+            <div class="status-layout-switch" role="group" aria-label="监控列表样式">
+              <button :class="{ active: layoutMode === 'board' }" @click="setLayoutMode('board')">紧凑</button>
+              <button :class="{ active: layoutMode === 'cards' }" @click="setLayoutMode('cards')">详情</button>
+            </div>
             <span class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/50"></span>
               {{ activeMonitors.length }} 个活跃监控
@@ -62,7 +66,21 @@
           </div>
         </div>
 
-        <div class="space-y-6">
+        <div v-if="layoutMode === 'board'" class="status-board-list">
+          <section v-for="section in monitorSections" :key="section.name" class="status-board-section">
+            <div class="status-board-heading">
+              <div class="flex items-center gap-2.5">
+                <span class="status-board-heading-mark"></span>
+                <h3>{{ section.name }}</h3>
+              </div>
+              <span>{{ section.items.length }} 项服务</span>
+            </div>
+            <div class="status-board-grid">
+              <MonitorCard v-for="(m, idx) in section.items" :key="m.id" :monitor="m" :index="idx" />
+            </div>
+          </section>
+        </div>
+        <div v-else class="space-y-6">
           <section v-for="section in monitorSections" :key="section.name" class="space-y-3">
             <div v-if="monitorSections.length > 1" class="flex items-center justify-between">
               <h3 class="text-xs font-bold text-slate-500 dark:text-slate-500 flex items-center gap-2">
@@ -71,7 +89,7 @@
               </h3>
               <span class="text-[11px] font-mono text-slate-400 dark:text-slate-600">{{ section.items.length }} 项</span>
             </div>
-            <MonitorCard v-for="(m, idx) in section.items" :key="m.id" :monitor="m" :index="idx" />
+            <MonitorCard v-for="(m, idx) in section.items" :key="m.id" :monitor="m" :index="idx" layout="cards" />
           </section>
         </div>
       </div>
@@ -99,6 +117,7 @@ const loading = ref(false);
 const error = ref(null);
 const lastUpdated = ref('');
 const refreshing = ref(false);
+const layoutMode = ref(localStorage.getItem('status_layout_mode') || 'board');
 const incidents = ref([]);
 const siteSettings = ref({ site_title: 'Uptime Monitor', site_description: '', site_logo_url: '' });
 
@@ -120,6 +139,11 @@ const monitorSections = computed(() => {
     }
     return [...groups.entries()].map(([name, items]) => ({ name, items }));
 });
+
+const setLayoutMode = (mode) => {
+    layoutMode.value = mode;
+    localStorage.setItem('status_layout_mode', mode);
+};
 
 const fetchMonitors = async () => {
     loading.value = true;

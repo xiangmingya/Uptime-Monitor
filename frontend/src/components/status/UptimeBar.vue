@@ -1,9 +1,9 @@
 <template>
-  <div class="monitor-row3 mt-4">
+  <div :class="compact ? 'status-uptime-strip' : 'monitor-row3 mt-4'">
     <div class="flex gap-[1.5px] items-end">
       <div v-for="(day, i) in displayDays" :key="i"
         class="uptime-bar-cell flex-1 rounded-[2px]"
-        style="height:18px"
+        :style="{ height: compact ? '14px' : '18px' }"
         :class="dayColorClass(day)">
         <div class="uptime-tooltip">
           {{ day.date }} ·
@@ -12,7 +12,7 @@
         </div>
       </div>
     </div>
-    <div class="flex justify-between items-center mt-1.5">
+    <div class="flex justify-between items-center" :class="compact ? 'mt-1' : 'mt-1.5'">
       <span class="text-[10px] font-mono text-slate-400/60 dark:text-slate-600/60">90 天前</span>
       <span v-if="monitor.uptime_30d != null" class="text-[11px] font-mono font-semibold"
         :class="monitor.uptime_30d >= 99.9 ? 'text-emerald-500' : monitor.uptime_30d >= 95 ? 'text-yellow-500' : 'text-red-500'"
@@ -27,6 +27,7 @@ import { computed } from 'vue';
 
 const props = defineProps({
     monitor: { type: Object, required: true },
+    compact: Boolean,
 });
 
 /**

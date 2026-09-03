@@ -34,7 +34,7 @@ jobs:
         working-directory: worker
         run: |
           cat > wrangler.toml << 'WRANGLER_EOF'
-          name = "uptime-worker"
+          name = "uptime-monitor-ni"
           main = "src/index.ts"
           compatibility_date = "2024-02-08"
 
@@ -45,7 +45,7 @@ jobs:
           echo '' >> wrangler.toml
           echo '[[d1_databases]]' >> wrangler.toml
           echo 'binding = "DB"' >> wrangler.toml
-          echo 'database_name = "uptime-db"' >> wrangler.toml
+          echo 'database_name = "uptime-monitor-ni"' >> wrangler.toml
           echo 'database_id = "${{ secrets.D1_DATABASE_ID }}"' >> wrangler.toml
           echo '' >> wrangler.toml
           echo '[vars]' >> wrangler.toml
@@ -94,11 +94,11 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project create uptime-monitor --production-branch=main
+          command: pages project create uptime-monitor-ni --production-branch=main
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy frontend/dist --project-name=uptime-monitor --branch=main --commit-dirty=true
+          command: pages deploy frontend/dist --project-name=uptime-monitor-ni --branch=main --commit-dirty=true

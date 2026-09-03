@@ -70,7 +70,7 @@ monitors.get('/public/details', async (c) => {
         SELECT monitor_id, date(created_at), COUNT(*), SUM(CASE WHEN is_fail=0 THEN 1 ELSE 0 END),
                COALESCE(CAST(AVG(CASE WHEN is_fail=0 THEN latency END) AS INTEGER), 0)
         FROM logs
-        WHERE created_at >= date('now','-90 days') AND created_at < date('now')
+        WHERE created_at >= date('now','-89 days')
         GROUP BY monitor_id, date(created_at)
       `).run();
     }
@@ -78,6 +78,15 @@ monitors.get('/public/details', async (c) => {
     const { results: dailyRows } = await c.env.DB.prepare(
       "SELECT monitor_id, date, total_checks, successful_checks FROM daily_uptime WHERE date >= date('now','-90 days') ORDER BY monitor_id, date"
     ).all();
+
+    // 每日汇总任务通常在次日生成数据；当天的状态条直接从实时日志计算，确保刚检查的结果立即可见。
+    const { results: todayRows } = await c.env.DB.prepare(`
+      SELECT monitor_id, date('now') AS date, COUNT(*) AS total_checks,
+        SUM(CASE WHEN is_fail = 0 THEN 1 ELSE 0 END) AS successful_checks
+      FROM logs
+      WHERE created_at >= date('now')
+      GROUP BY monitor_id
+    `).all();
 
     const { results: liveRows } = await c.env.DB.prepare(`
       SELECT monitor_id,
@@ -99,6 +108,16 @@ monitors.get('/public/details', async (c) => {
       const id = r.monitor_id as number;
       if (!dMap.has(id)) dMap.set(id, []);
       dMap.get(id)!.push({ date: r.date as string, up: r.successful_checks as number, total: r.total_checks as number });
+    }
+    for (const r of todayRows || []) {
+      const id = r.monitor_id as number;
+      if (!dMap.has(id)) dMap.set(id, []);
+      const stats = dMap.get(id)!;
+      const date = r.date as string;
+      const todayIndex = stats.findIndex(item => item.date === date);
+      const today = { date, up: r.successful_checks as number, total: r.total_checks as number };
+      if (todayIndex >= 0) stats[todayIndex] = today;
+      else stats.push(today);
     }
     const sMap = new Map<number, Record<string, number>>();
     for (const r of liveRows || []) sMap.set(r.monitor_id as number, r as Record<string, number>);

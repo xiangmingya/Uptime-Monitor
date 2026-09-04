@@ -332,6 +332,8 @@ html:not(.dark) .card-hover:hover { border-color: #d1d5db; box-shadow: 0 4px 16p
 /* ── Tag (admin) ── */
 .tag-chip { display:inline-flex; align-items:center; padding:1px 8px; border-radius:99px; font-size:10px; font-weight:600; background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.25); }
 html:not(.dark) .tag-chip { background:rgba(99,102,241,0.1); color:#6366f1; border-color:rgba(99,102,241,0.2); }
+.group-chip { display:inline-flex; align-items:center; gap:4px; padding:1px 8px; border-radius:99px; font-size:10px; font-weight:700; background:rgba(16,185,129,0.14); color:#6ee7b7; border:1px solid rgba(16,185,129,0.26); }
+html:not(.dark) .group-chip { background:rgba(16,185,129,0.1); color:#047857; border-color:rgba(16,185,129,0.25); }
 .tag-filter-btn { padding:3px 10px; border-radius:99px; font-size:11px; cursor:pointer; border:1px solid rgba(255,255,255,0.08); transition: all 0.15s; }
 html:not(.dark) .tag-filter-btn { border-color: #e2e8f0; }
 .tag-filter-btn.active { background:#22c55e; color:#fff; border-color:#22c55e; }

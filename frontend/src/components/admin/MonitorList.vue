@@ -57,6 +57,7 @@
           </a>
           <div class="flex flex-wrap items-center gap-1.5 mt-1">
             <span v-if="m.keyword" class="text-[10px] text-slate-600 flex items-center gap-1"><i class="fas fa-filter text-[8px]"></i>{{ m.keyword }}</span>
+            <span v-if="m.group_name" class="group-chip"><i class="fas fa-layer-group text-[8px]"></i>{{ m.group_name }}</span>
             <span v-for="tag in parseTags(m.tags)" :key="tag" class="tag-chip">{{ tag }}</span>
           </div>
         </div>

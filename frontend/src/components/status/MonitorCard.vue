@@ -42,9 +42,13 @@
         <span v-else class="inline-flex min-w-[64px] justify-center px-2.5 py-1 rounded-lg text-[11px] font-bold border bg-yellow-50 dark:bg-yellow-400/10 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-400/25">重试中</span>
         <div v-if="monitor.latency != null && !monitor.paused" class="latency-badge px-2.5 py-1 rounded-lg text-xs font-mono font-medium border" :class="latencyClass(monitor.latency)">{{ monitor.latency }}ms</div>
         <div v-if="monitor.uptime_24h != null && !monitor.paused" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold border" :class="uptimeClass">24h {{ monitor.uptime_24h }}%</div>
+        <svg v-if="sparkline && !monitor.paused" class="sparkline-wrap hidden lg:block w-[92px] h-[26px]" :class="monitor.status === 'DOWN' ? 'text-red-500' : monitor.status === 'RETRYING' ? 'text-yellow-500' : 'text-emerald-500'" viewBox="0 0 120 28" preserveAspectRatio="none" aria-label="延迟趋势">
+          <path :d="sparkline.area" class="sparkline-area" fill="currentColor"/>
+          <path :d="sparkline.line" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+          <circle :cx="sparkline.dot.x" :cy="sparkline.dot.y" r="2.5" fill="currentColor" opacity="0.9"/>
+        </svg>
       </div>
     </div>
-    <UptimeBar v-if="monitor.daily_stats && monitor.daily_stats.length > 0 && !monitor.paused" :monitor="monitor" />
   </article>
 </template>
 
@@ -76,5 +80,25 @@ const uptimeClass = computed(() => {
     if (value >= 99.9) return 'text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20';
     if (value >= 95) return 'text-yellow-600 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-400/10 border-yellow-200 dark:border-yellow-400/20';
     return 'text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20';
+});
+
+const sparkline = computed(() => {
+    const values = props.monitor.recent_latencies;
+    if (!values || values.length < 3) return null;
+
+    const width = 120, height = 28, padding = 2;
+    const max = Math.max(...values), min = Math.min(...values);
+    const range = max - min || 1;
+    const points = values.map((value, index) => ({
+        x: padding + (index / (values.length - 1)) * (width - padding * 2),
+        y: height - padding - ((value - min) / range) * (height - padding * 2),
+    }));
+    const line = points.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
+    const pointString = points.map(point => `${point.x.toFixed(1)} ${point.y.toFixed(1)}`);
+    return {
+        line,
+        area: `M${pointString[0]} L${pointString.join(' L')} L${(width - padding).toFixed(1)} ${height} L${padding} ${height} Z`,
+        dot: points[points.length - 1],
+    };
 });
 </script>

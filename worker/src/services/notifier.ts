@@ -86,6 +86,7 @@ export async function sendToChannel(
       case 'telegram': return await sendTelegram(cfg, monitor, type, detail);
       case 'webhook':  return await sendWebhook(cfg, monitor, type, detail);
       case 'email':    return await sendEmail(cfg, monitor, type, detail);
+      case 'showdoc':  return await sendShowDoc(cfg, monitor, type, detail);
       default:
         console.warn(`Unknown channel type: ${channel.type}`);
         return false;
@@ -94,6 +95,33 @@ export async function sendToChannel(
     console.error(`Failed to send via ${channel.type} (${channel.name}):`, e);
     return false;
   }
+}
+
+// ── ShowDoc 推送服务 ─────────────────────────────────────────
+async function sendShowDoc(cfg: Record<string, string>, monitor: Pick<Monitor, 'name' | 'url'>, type: 'DOWN' | 'UP', detail: string): Promise<boolean> {
+  const { token } = cfg;
+  if (!token) { console.warn('ShowDoc config missing.'); return false; }
+
+  const msg = buildAlertMessage(monitor, type, detail);
+  const content = [
+    `**监控名称：** ${msg.monitorName}`,
+    `**监控地址：** ${msg.monitorUrl}`,
+    `**当前状态：** ${msg.statusText}`,
+    `**详情：** ${msg.detail}`,
+    `**时间：** ${msg.time}`,
+  ].join('\n\n');
+  const resp = await fetch(`https://push.showdoc.com.cn/server/api/push/${encodeURIComponent(token)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body: new URLSearchParams({ title: msg.title, content }).toString(),
+  });
+  if (!resp.ok) { console.error('ShowDoc API HTTP Error:', resp.status); return false; }
+  const result = await resp.json<{ error_code?: number; error_message?: string }>().catch(() => null);
+  if (!result || result.error_code !== 0) {
+    console.error('ShowDoc API Error:', result);
+    return false;
+  }
+  return true;
 }
 
 // ── 钉钉 ──────────────────────────────────────────────────────

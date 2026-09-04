@@ -74,7 +74,8 @@
                       role="button" tabindex="0" @click="editCh(ch)" @keydown.enter.prevent="editCh(ch)" @keydown.space.prevent="editCh(ch)"
                       :aria-label="`编辑通知渠道：${ch.name}`">
                       <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" :class="getTypeInfo(ch.type).bg">
-                        <i :class="getTypeInfo(ch.type).iconClass"></i>
+                        <img v-if="getTypeInfo(ch.type).iconSrc" :src="getTypeInfo(ch.type).iconSrc" :alt="`${getTypeInfo(ch.type).label} 图标`" class="w-6 h-6 rounded-full object-cover">
+                        <i v-else :class="getTypeInfo(ch.type).iconClass"></i>
                       </div>
                       <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
@@ -126,7 +127,8 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <button v-for="item in channelTypeOptions" :key="item.key" @click="startCreate(item.key)"
                     class="rounded-xl border border-slate-700 bg-slate-900/50 px-3 py-3 text-left hover:border-green-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 transition-colors cursor-pointer">
-                    <i :class="item.iconClass"></i>
+                    <img v-if="item.iconSrc" :src="item.iconSrc" :alt="`${item.label} 图标`" class="w-5 h-5 rounded-full object-cover">
+                    <i v-else :class="item.iconClass"></i>
                     <span class="block text-xs font-semibold text-slate-300 mt-2">{{ item.label }}</span>
                   </button>
                 </div>
@@ -137,7 +139,8 @@
                   <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">
                       <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :class="currentEditingInfo.bg">
-                        <i :class="currentEditingInfo.iconClass"></i>
+                        <img v-if="currentEditingInfo.iconSrc" :src="currentEditingInfo.iconSrc" :alt="`${currentEditingInfo.label} 图标`" class="w-6 h-6 rounded-full object-cover">
+                        <i v-else :class="currentEditingInfo.iconClass"></i>
                       </div>
                       <div class="min-w-0">
                         <h4 class="text-base font-bold text-white">{{ editing.id ? '编辑渠道' : '添加渠道' }}</h4>
@@ -157,7 +160,8 @@
                       <button v-for="item in channelTypeOptions" :key="item.key" @click="selectType(item.key)"
                         class="rounded-xl border px-3 py-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 cursor-pointer"
                         :class="editing.type === item.key ? 'border-green-500 bg-green-900/20' : 'border-slate-700 bg-slate-900/40 hover:border-green-500/40'">
-                        <i :class="item.iconClass"></i>
+                        <img v-if="item.iconSrc" :src="item.iconSrc" :alt="`${item.label} 图标`" class="w-5 h-5 rounded-full object-cover">
+                        <i v-else :class="item.iconClass"></i>
                         <span class="block text-xs font-semibold mt-2" :class="editing.type === item.key ? 'text-green-400' : 'text-slate-300'">{{ item.label }}</span>
                         <span v-if="item.badge" class="block text-[10px] text-slate-500 mt-0.5">{{ item.badge }}</span>
                       </button>
@@ -242,6 +246,14 @@
                       <input v-model="editing.config.to_email" type="email" placeholder="admin@example.com" class="input-field w-full border border-slate-700 rounded-xl px-4 py-3 text-sm bg-slate-800/80 text-white outline-none placeholder-slate-600 font-mono">
                     </div>
                   </template>
+
+                  <template v-if="editing.type === 'showdoc'">
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-400 mb-2">推送 Token <span class="text-red-400">*</span></label>
+                      <input v-model="editing.config.token" type="password" :placeholder="editing.id ? '留空则保留原 Token' : 'ShowDoc 推送服务生成的 Token'" class="input-field w-full border border-slate-700 rounded-xl px-4 py-3 text-sm bg-slate-800/80 text-white outline-none placeholder-slate-600 font-mono">
+                      <p class="mt-2 text-[11px] leading-5 text-slate-500">在 ShowDoc 推送服务的“API 推送”页面获取 Token；保存后可使用“测试”确认推送。</p>
+                    </div>
+                  </template>
                 </div>
 
                 <div class="px-5 py-4 border-t border-slate-700/70 bg-slate-900/35 flex flex-col sm:flex-row gap-2 sm:justify-end">
@@ -267,6 +279,7 @@ import { computed, ref } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import { useToast } from '../../composables/useToast';
 import { API_BASE, fetchT } from '../../utils/api';
+import showdocIcon from '../../assets/showdoc.jpg';
 
 const emit = defineEmits(['close']);
 const { storedToken } = useAuth();
@@ -288,6 +301,7 @@ const typeInfo = {
     webhook: { iconClass: 'fas fa-link text-orange-400 text-lg', label: 'Webhook', desc: '推送到自定义 HTTP 接口', bg: 'bg-orange-900/40' },
     telegram: { iconClass: 'fab fa-telegram text-sky-400 text-lg', label: 'Telegram', desc: '通过 Bot 推送到聊天', badge: '海外', bg: 'bg-sky-900/40' },
     email: { iconClass: 'fas fa-envelope text-rose-400 text-lg', label: 'Email', desc: '通过 Resend 发送邮件', badge: '海外', bg: 'bg-rose-900/40' },
+    showdoc: { iconClass: '', iconSrc: showdocIcon, label: 'ShowDoc 推送', desc: '推送到 ShowDoc 微信服务', bg: 'bg-cyan-900/40' },
 };
 
 const fallbackTypeInfo = { iconClass: 'fas fa-bell text-slate-400 text-lg', label: '未知渠道', desc: '自定义通知渠道', bg: 'bg-slate-700' };

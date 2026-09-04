@@ -37,7 +37,7 @@ channels.post('/', async (c) => {
   try {
     const body = await c.req.json<{ type: string; name: string; config: Record<string, unknown>; enabled?: number }>();
     if (!body.type || !body.name || !body.config) return c.json({ error: 'Missing required fields' }, 400);
-    const validTypes = ['dingtalk', 'wecom', 'feishu', 'telegram', 'webhook', 'email'];
+    const validTypes = ['dingtalk', 'wecom', 'feishu', 'telegram', 'webhook', 'email', 'showdoc'];
     if (!validTypes.includes(body.type)) return c.json({ error: `Invalid type. Valid: ${validTypes.join(', ')}` }, 400);
     await c.env.DB.prepare('INSERT INTO notification_channels (type, name, enabled, config) VALUES (?, ?, ?, ?)')
       .bind(body.type, body.name, body.enabled ?? 1, JSON.stringify(body.config)).run();

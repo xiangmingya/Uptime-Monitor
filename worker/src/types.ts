@@ -52,7 +52,7 @@ export interface DingTalkResult {
 
 export interface NotificationChannel {
   id: number;
-  type: 'dingtalk' | 'wecom' | 'feishu' | 'telegram' | 'webhook' | 'email';
+  type: 'dingtalk' | 'wecom' | 'feishu' | 'telegram' | 'webhook' | 'email' | 'showdoc';
   name: string;
   enabled: number;
   config: string;
